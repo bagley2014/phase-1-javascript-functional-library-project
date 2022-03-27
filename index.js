@@ -1,46 +1,82 @@
 const { initial } = require("jshint/src/prod-params");
 
+function makeArrayFromUncleanInput(input) {
+  return Array.isArray(input)
+    ? input
+    : typeof input !== "object"
+    ? [input]
+    : Object.values(input);
+}
+
 function myEach(collection, callback) {
-    Object.values(collection).forEach(element => callback(element));
-    return collection;
+  const [head, ...tail] = makeArrayFromUncleanInput(collection);
+  if (head !== undefined) {
+    callback(head);
+    myEach(tail, callback);
+  }
+  return collection;
 }
 
 function myMap(collection, callback) {
-    let array = Object.values(collection);
-    return array.map(el => callback(el));
+  const [head, ...tail] = makeArrayFromUncleanInput(collection);
+  return head !== undefined
+    ? [callback(head)].concat(myMap(tail, callback))
+    : [];
 }
 
-function myReduce(collection, callback, initial = undefined) {
-    let array = Object.values(collection);
-
-    let acc = initial || array[0];
-    let startIndex = initial !== undefined ? 0 : 1;
-    for (let i = startIndex; i < array.length; i++) {
-        const val = array[i];
-        acc = callback(acc, val, array);
-    }
-    return acc;
+function myReduce(collection, callback, acc) {
+  return myReduceCore(collection, collection, callback, acc);
+}
+function myReduceCore(entireCollection, remainingCollection, callback, acc) {
+  const [head, ...tail] = makeArrayFromUncleanInput(remainingCollection);
+  return acc === undefined
+    ? myReduceCore(entireCollection, tail, callback, head)
+    : head !== undefined
+    ? myReduceCore(
+        entireCollection,
+        tail,
+        callback,
+        callback(acc, head, entireCollection)
+      )
+    : acc;
 }
 
 function myFind(collection, predicate) {
-    return Object.values(collection).find((val) => predicate(val));
+  const [head, ...tail] = makeArrayFromUncleanInput(collection);
+  return head === undefined
+    ? undefined
+    : predicate(head)
+    ? head
+    : myFind(tail, predicate);
 }
+
 function myFilter(collection, predicate) {
-    return Object.values(collection).filter((val) => predicate(val));
+  const [head, ...tail] = makeArrayFromUncleanInput(collection);
+  return head === undefined
+    ? []
+    : predicate(head)
+    ? [head].concat(myFilter(tail, predicate))
+    : myFilter(tail, predicate);
 }
+
 function mySize(collection) {
-    return Object.values(collection).length;
+  const [head, ...tail] = makeArrayFromUncleanInput(collection);
+  return head === undefined ? 0 : 1 + mySize(tail);
 }
 
 function myFirst(array, count) {
-    return count ? array.slice(0, count) : array[0];
+  const [head, ...tail] = array;
+  return head === undefined ? [] : count !== undefined ? [head] : head;
 }
+
 function myLast(array, count) {
-    return count ? array.slice(array.length - count) : array[array.length - 1];
+  return count ? array.slice(array.length - count) : array[array.length - 1];
 }
+
 function myKeys(object) {
-    return Object.keys(object);
+  return Object.keys(object);
 }
+
 function myValues(object) {
-    return Object.values(object);
+  return Object.values(object);
 }
