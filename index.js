@@ -86,7 +86,7 @@ function myFlatten(array, shallow = false, newArr = []) {
   return myFlattenCore(array, shallow, 0);
 }
 function myFlattenCore(array, shallow, layer) {
-  const [head, ...tail] = makeArrayFromUncleanInput(array);
+  const [head, ...tail] = array;
   return (
     (!shallow || layer === 0) && Array.isArray(head)
       ? myFlattenCore(head, shallow, layer + 1)
