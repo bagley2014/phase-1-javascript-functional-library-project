@@ -66,11 +66,20 @@ function mySize(collection) {
 
 function myFirst(array, count) {
   const [head, ...tail] = array;
-  return head === undefined ? [] : count !== undefined ? [head] : head;
+  return count <= 0 || head === undefined
+    ? []
+    : count === undefined
+    ? head
+    : [head].concat(myFirst(tail, count - 1));
 }
 
 function myLast(array, count) {
-  return count ? array.slice(array.length - count) : array[array.length - 1];
+  const [head, ...tail] = array;
+  return count === undefined
+    ? myLast(array, 1)[0]
+    : mySize(array) <= count
+    ? array
+    : myLast(tail, count);
 }
 
 function myKeys(object) {
