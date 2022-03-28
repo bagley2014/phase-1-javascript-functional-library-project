@@ -82,6 +82,18 @@ function myLast(array, count) {
     : myLast(tail, count);
 }
 
+function myFlatten(array, shallow = false, newArr = []) {
+  return myFlattenCore(array, shallow, 0);
+}
+function myFlattenCore(array, shallow, layer) {
+  const [head, ...tail] = makeArrayFromUncleanInput(array);
+  return (
+    (!shallow || layer === 0) && Array.isArray(head)
+      ? myFlattenCore(head, shallow, layer + 1)
+      : [head]
+  ).concat(tail.length ? myFlattenCore(tail, shallow, layer) : []);
+}
+
 function myKeys(object) {
   return Object.keys(object);
 }
